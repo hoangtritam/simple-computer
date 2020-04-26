@@ -17,6 +17,7 @@ void digit();
 void forward();
 bool match(char ch);
 void fail();
+void skipSpaces();
 
 // main program
 int main(int argc, char* argv[])
@@ -37,6 +38,7 @@ void recursiveExpr()
 {
 	while (true)
 	{
+		skipSpaces();
 		char backup = *pLookAhead;
 		if (match('+') || match('-'))
 		{
@@ -60,6 +62,7 @@ void recursiveTerm()
 {
 	while (true)
 	{
+		skipSpaces();
 		char backup = *pLookAhead;
 		if (match('*') || match('/'))
 		{
@@ -112,10 +115,19 @@ bool match(char ch)
 void forward()
 {
 	pLookAhead++;
+	skipSpaces();
 }
 
 void fail()
 {
 	cerr << endl << "Syntax error!" << endl;
 	exit(1);
+}
+
+void skipSpaces()
+{
+	while (*pLookAhead == ' ' || *pLookAhead == '\t')
+	{
+		pLookAhead++;
+	}
 }
