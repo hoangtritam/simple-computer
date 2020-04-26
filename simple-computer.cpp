@@ -4,55 +4,118 @@
 
 using namespace std;
 
+// global variables
 char* pLookAhead;
 
-void term();
+// function declarations
 void expr();
+void recursiveExpr();
+void term();
+void recursiveTerm();
+void factor();
+void digit();
 void forward();
+bool match(char ch);
+void fail();
 
+// main program
 int main(int argc, char* argv[])
 {
 	pLookAhead = argv[1];
-	term();
 	expr();
 	cout << endl;
 	return 0;
 }
 
+void expr()
+{
+	term();
+	recursiveExpr();
+}
+
+void recursiveExpr()
+{
+	while (true)
+	{
+		char backup = *pLookAhead;
+		if (match('+') || match('-'))
+		{
+			term();
+			cout << backup;
+		}
+		else
+		{
+			break;
+		}
+	}
+}
+
 void term()
+{
+	factor();
+	recursiveTerm();
+}
+
+void recursiveTerm()
+{
+	while (true)
+	{
+		char backup = *pLookAhead;
+		if (match('*') || match('/'))
+		{
+			factor();
+			cout << backup;
+		}
+		else
+		{
+			break;
+		}
+	}
+}
+
+void factor()
+{
+	if (match('('))
+	{
+		expr();
+		if (!match(')'))
+		{
+			fail();
+		}
+	}
+	else
+	{
+		digit();
+	}
+}
+
+void digit()
 {
 	if (*pLookAhead < '0' || *pLookAhead > '9')
 	{
-		cerr << "Syntax error!" << endl;
-		exit(1);
+		fail();
 	}
 	cout << *pLookAhead;
 	forward();
 }
 
-void expr()
+bool match(char ch)
 {
-	if (*pLookAhead == '+')
+	if (*pLookAhead == ch)
 	{
 		forward();
-		term();
-		expr();
-		cout << '+';
+		return true;
 	}
-	else if (*pLookAhead == '-')
-	{
-		forward();
-		term();
-		expr();
-		cout << '-';
-	}
-	else
-	{
-		return;
-	}
+	return false;
 }
 
 void forward()
 {
 	pLookAhead++;
+}
+
+void fail()
+{
+	cerr << endl << "Syntax error!" << endl;
+	exit(1);
 }
