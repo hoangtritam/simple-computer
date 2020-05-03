@@ -1,11 +1,12 @@
 ﻿// simple-computer.cpp : The following program accepts expression of simple operations and digits.
 
 #include "simple-computer.h"
+#include "Lexer.h"
 
 using namespace std;
 
 // global variables
-char* pLookAhead;
+Lexer* pLexer;
 
 // function declarations
 void expr();
@@ -13,18 +14,15 @@ void recursiveExpr();
 void term();
 void recursiveTerm();
 void factor();
-void digit();
-void forward();
-bool match(char ch);
 void fail();
-void skipSpaces();
 
 // main program
 int main(int argc, char* argv[])
 {
-	pLookAhead = argv[1];
+	pLexer = new Lexer(argv[1]);
 	expr();
 	cout << endl;
+	delete pLexer;
 	return 0;
 }
 
@@ -38,15 +36,15 @@ void recursiveExpr()
 {
 	while (true)
 	{
-		skipSpaces();
-		char backup = *pLookAhead;
-		if (match('+') || match('-'))
+		Token token = pLexer->nextToken();
+		if (token.isPlus() || token.isMinus())
 		{
 			term();
-			cout << backup;
+			token.display();
 		}
 		else
 		{
+			pLexer->retract();
 			break;
 		}
 	}
@@ -62,15 +60,15 @@ void recursiveTerm()
 {
 	while (true)
 	{
-		skipSpaces();
-		char backup = *pLookAhead;
-		if (match('*') || match('/'))
+		Token token = pLexer->nextToken();
+		if (token.isMultiply() || token.isDivide())
 		{
 			factor();
-			cout << backup;
+			token.display();
 		}
 		else
 		{
+			pLexer->retract();
 			break;
 		}
 	}
@@ -78,56 +76,33 @@ void recursiveTerm()
 
 void factor()
 {
-	if (match('('))
+	Token token = pLexer->nextToken();
+	if (token.isOpeningParenthesis())
 	{
+		token.display();
+
+		// nested expression
 		expr();
-		if (!match(')'))
+		
+		token = pLexer->nextToken();
+		if (!token.isClosingParenthesis())
 		{
 			fail();
 		}
+		token.display();
+	}
+	else if (token.isNumber())
+	{
+		token.display();
 	}
 	else
 	{
-		digit();
-	}
-}
-
-void digit()
-{
-	if (*pLookAhead < '0' || *pLookAhead > '9')
-	{
 		fail();
 	}
-	cout << *pLookAhead;
-	forward();
-}
-
-bool match(char ch)
-{
-	if (*pLookAhead == ch)
-	{
-		forward();
-		return true;
-	}
-	return false;
-}
-
-void forward()
-{
-	pLookAhead++;
-	skipSpaces();
 }
 
 void fail()
 {
-	cerr << endl << "Syntax error!" << endl;
+	cerr << "Syntax error!" << endl;
 	exit(1);
-}
-
-void skipSpaces()
-{
-	while (*pLookAhead == ' ' || *pLookAhead == '\t')
-	{
-		pLookAhead++;
-	}
 }
