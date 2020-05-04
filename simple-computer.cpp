@@ -1,4 +1,9 @@
-﻿// simple-computer.cpp : The following program accepts expression of simple operations and digits.
+﻿/// simple-computer.cpp : The following program accepts expression of simple operations and digits.
+/// It accepts:
+/// - multi-digit numbers
+/// - simple operators: addition, substraction, multiplication, division
+/// - parenthesis for precedence order
+/// The program parses the input expression, displays its postfix form together with the final result.
 
 #include "simple-computer.h"
 #include "Lexer.h"
@@ -6,11 +11,11 @@
 
 using namespace std;
 
-// global variables
+/* global variables */
 Lexer* pLexer;
 stack<int> resultStack;
 
-// function declarations
+/* function declarations */
 void expr();
 void recursiveExpr();
 void term();
@@ -18,23 +23,34 @@ void recursiveTerm();
 void factor();
 void fail();
 
-// main program
+/* main program */
 int main(int argc, char* argv[])
 {
 	pLexer = new Lexer(argv[1]);
+
+	// process the whole input as expr
 	expr();
-	cout << endl;
-	cout << "Result: " << resultStack.top() << endl;
+
+	// display result
+	cout << endl  << "Result: " << resultStack.top() << endl;
+
+	// clean the dynamic pointer
 	delete pLexer;
 	return 0;
 }
 
+/// Grammar: 
+/// expr -> term recursiveExpr
 void expr()
 {
 	term();
 	recursiveExpr();
 }
 
+/// Grammar: 
+/// recursiveExpr -> + term recursiveExpr
+/// recursiveExpr -> - term recursiveExpr
+/// recursiveExpr -> {null}
 void recursiveExpr()
 {
 	while (true)
@@ -62,18 +78,25 @@ void recursiveExpr()
 		}
 		else
 		{
+			// if the token is not null, we have to retract
 			pLexer->retract();
 			break;
 		}
 	}
 }
 
+/// Grammar: 
+/// term -> factor recursiveTerm
 void term()
 {
 	factor();
 	recursiveTerm();
 }
 
+/// Grammar:
+/// recursiveTerm -> * factor recursiveTerm
+/// recursiveTerm -> / factor recursiveTerm
+/// recursiveTerm -> {null}
 void recursiveTerm()
 {
 	while (true)
@@ -101,12 +124,16 @@ void recursiveTerm()
 		}
 		else
 		{
+			// if the token is not null, we have to retract
 			pLexer->retract();
 			break;
 		}
 	}
 }
 
+/// Grammar:
+/// factor -> ( expr )
+/// factor -> number
 void factor()
 {
 	Token token = pLexer->nextToken();
@@ -135,6 +162,7 @@ void factor()
 	}
 }
 
+/// Report syntax failure and stop the program
 void fail()
 {
 	cerr << "Syntax error!" << endl;

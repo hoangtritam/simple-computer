@@ -12,6 +12,8 @@
 
 using namespace std;
 
+/// A token to be identified by Lexer. 
+/// Each token has a number of attribute, to define what it is, which values it contains.
 class Token
 {
 private:
@@ -74,19 +76,19 @@ public:
 			cout << ")";
 			break;
 		case OPERATOR_PLUS:
-			cout << " + ";
+			cout << "+ ";
 			break;
 		case OPERATOR_MINUS:
-			cout << " - ";
+			cout << "- ";
 			break;
 		case OPERATOR_MULTIPLY:
-			cout << " x ";
+			cout << "x ";
 			break;
 		case OPERATOR_DIVIDE:
-			cout << " : ";
+			cout << ": ";
 			break;
 		case NUMBER:
-			cout << value;
+			cout << value << " ";
 			break;
 		}
 	};

@@ -3,6 +3,7 @@
 
 using namespace std;
 
+/// Return true if the character is digit
 bool isDigit(char ch)
 {
 	if (ch >= '0' && ch <= '9')
@@ -57,6 +58,7 @@ Token Lexer::nextToken()
 	default:
 		if (isDigit(*pLookahead))
 		{
+			// Read multi-digit number
 			int value(*pLookahead - '0');
 			pLookahead++;
 			while (isDigit(*pLookahead))
